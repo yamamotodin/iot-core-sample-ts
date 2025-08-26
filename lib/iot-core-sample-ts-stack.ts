@@ -4,6 +4,7 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
+import * as fs from "node:fs";
 
 export class IotCoreSampleTsStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -88,12 +89,8 @@ export class IotCoreSampleTsStack extends cdk.Stack {
     const certificate = new iot.CfnCertificate(this, 'CustomCertificate', {
       status: 'ACTIVE',
       certificateMode: 'DEFAULT',
-      certificateSigningRequest: `-----BEGIN CERTIFICATE REQUEST-----
-MIICXjCCAUYCAQAwGTEXMBUGA1UEAwwOTXlJb1REZXZpY2UwMTCCASIwDQYJKoZI
-hvcNAQEBBQADggEPADCCAQoCggEBAL... // あなたのCSRをここに貼り付け
------END CERTIFICATE REQUEST-----`
+      certificateSigningRequest: fs.readFileSync('./resources/device.csr', 'utf-8')
     });
-
 
     // Policy Attachment - 証明書にポリシーをアタッチ
     new iot.CfnPolicyPrincipalAttachment(this, 'PolicyPrincipalAttachment', {
